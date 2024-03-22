@@ -1,5 +1,6 @@
 import { ChatMessageData } from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs';
 import { DFChatArchive, DFChatArchiveEntry } from './DFChatArchive';
+import ChatMerge from '../merge/chat-merge';
 
 export default class DFChatArchiveViewer extends Application {
 	archive: DFChatArchiveEntry;
@@ -153,12 +154,13 @@ export default class DFChatArchiveViewer extends Application {
 				});
 
 				const log = html.find('#df-chat-log');
-				const messageHtml = [];
+				const messageHtml : Array<HTMLCollection> = [];
 				this.messages = (await DFChatArchive.getArchiveContents(this.archive) as ChatMessageData[])
-					.filter(x => game.user.isGM || x.user === game.userId || x.type !== CONST.CHAT_MESSAGE_TYPES.WHISPER || x.whisper.some(x => x === game.userId));
-
+					.filter(x => game.user.isGM || x.user === game.userId || x.type !== CONST.CHAT_MESSAGE_TYPES.WHISPER || true /* x.whisper.some(x => x === game.userId && x.flags.midiqol == null) */);
 				const deletionList: string[] = [];
 				const deleteButton = html.find('#dfal-save-changes');
+
+				let idx = 0;
 				for (const value of this.messages as ChatMessageData[]) {
 					const chatMessage = value instanceof ChatMessage ? value : new ChatMessage(value);
 					try {
@@ -184,10 +186,17 @@ export default class DFChatArchiveViewer extends Application {
 							if (deletionList.length > 0) deleteButton.show();
 							else deleteButton.hide();
 						});
+						if(idx >= 1) {
+							let nx = messageHtml.at(idx-1);
+							ChatMerge._styleChatMessages(this.messages.at(idx-1), nx[0] as HTMLElement, this.messages.at(idx), html[0] as HTMLElement)
+							messageHtml[idx-1] = nx;
+						}
+						html.addClass("dfal-entry");
 						messageHtml.push(html);
 					} catch (err) {
 						console.error(`Chat message ${chatMessage.id} failed to render.\n${err})`);
 					}
+					idx++;
 				}
 
 				// Prepend the HTML

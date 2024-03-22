@@ -189,7 +189,8 @@ export default class ChatMerge {
 	private static _renderChatMessage(message: ChatMessageData, html: JQuery<HTMLElement>, _cmd: ChatMessageData) {
 		if (!ChatMerge._enabled) return;
 		// Find the most recent message in the chat log
-		const partnerElem = $(`li.chat-message`).last()[0];
+		const existElem = $(`li.chat-message[data-message-id*='${message.id}']`)[0];
+		const partnerElem = existElem == null ? $(`li.chat-message`).last()[0] : existElem;
 		// If there is no message, return
 		if (partnerElem === null || partnerElem === undefined) return;
 		// get the ChatMessage document associated with the html
@@ -212,8 +213,11 @@ export default class ChatMerge {
 		const prevData = previous ?? <ChatMessageData><any>previous;
 
 		// If either message is a Midi-QoL message, ignore it
-		if ((currData?.flags && (currData.flags as Record<string, any>)['midi-qol']) || (prevData?.flags && (prevData.flags as Record<string, any>)['midi-qol']))
+		if ((currData?.flags && (currData.flags as Record<string, any>)['midiqol']) || (prevData?.flags && (prevData.flags as Record<string, any>)['midiqol']))
 			return false;
+		
+		// For CGMP narator
+		if (currData.speaker !== null && (prevData.speaker === null || (currData.speaker.alias !== prevData.speaker.alias))) return false;
 
 		if (splitSpeaker) {
 			// this is a bit complex, basically we want to group by actors, but if you're not using an actor, group by user instead
@@ -238,7 +242,11 @@ export default class ChatMerge {
 				|| (rolls === 'none' && !current.isRoll && !previous.isRoll));
 	}
 
-	private static _styleChatMessages(curr: ChatMessageData, currElem: HTMLElement, prev: ChatMessageData, prevElem: HTMLElement) {
+	public static _styleChatMessages(curr: ChatMessageData, currElem: HTMLElement, prev: ChatMessageData, prevElem: HTMLElement) {
+		if ((curr.id ?? curr._id) === (prev.id ?? prev._id)) {
+			currElem.className = prevElem.className
+			return; // my edit
+		}
 		if (currElem.hasAttribute('style')) {
 			currElem.style.setProperty('--dfce-mc-border-color', currElem.style.borderColor);
 		}
@@ -252,11 +260,23 @@ export default class ChatMerge {
 			prev = <ChatMessageData>chatLog.messages.find(x =>
 				(x.id ?? x._id) == prevElem.dataset.messageId);
 		}
-		if (!ChatMerge._isValidMessage(curr, prev)) return;
-		if (prevElem.classList.contains('dfce-cm-bottom')) {
-			prevElem.classList.remove('dfce-cm-bottom');
-			prevElem.classList.add('dfce-cm-middle');
-		} else prevElem.classList.add('dfce-cm-top');
-		currElem.classList.add('dfce-cm-bottom');
+		// continue merging (top -> down)
+		if(curr.timestamp > prev.timestamp) {
+			if (!ChatMerge._isValidMessage(curr, prev)) return;
+			if (prevElem.classList.contains('dfce-cm-bottom')) {
+				prevElem.classList.remove('dfce-cm-bottom');
+				prevElem.classList.add('dfce-cm-middle');
+			} else prevElem.classList.add('dfce-cm-top'); // prev elem is the first element
+			currElem.classList.add('dfce-cm-bottom');
+		}
+		// continue merging (down -> top)
+		else {
+			if (!ChatMerge._isValidMessage(prev, curr)) return;
+			if (currElem.classList.contains('dfce-cm-bottom')) {
+				currElem.classList.remove('dfce-cm-bottom');
+				currElem.classList.add('dfce-cm-middle');
+			} else currElem.classList.add('dfce-cm-top'); // prev elem is the first element
+			prevElem.classList.add('dfce-cm-bottom');
+		}
 	}
 }

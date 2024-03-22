@@ -2,11 +2,11 @@
 	"id": "df-chat-enhance",
 	"title": "DF Chat Enhancements",
 	"description": "Various enhancements to the chat features.",
-	"version": "4.1.0",
+	"version": "4.2.0",
 	"author": "flamewave000#0001",
 	"compatibility": {
 		"minimum": 10,
-		"verified": 10.288
+		"verified": 11.315
 	},
 	"relationships": {
 		"requires": [
@@ -22,6 +22,22 @@
 				"type": "module",
 				"compatibility": {
 					"minimum": "1.4.0"
+				}
+			}
+		],
+		"recommends": [
+			{
+				"id": "midi-qol",
+				"type": "module",
+				"compatibility": {
+					"minimum": "11.3.21"
+				}
+			},
+			{
+				"id": "polyglot",
+				"type": "module",
+				"compatibility": {
+					"minimum": "2.4.3"
 				}
 			}
 		]
@@ -45,7 +61,9 @@
 	"changelog":"https://github.com/flamewave000/dragonflagon-fvtt/tree/master/df-chat-enhance/CHANGELOG.md",
 	"manifestPlusVersion": "1.0.0",
 	"bugs": "https://github.com/flamewave000/dragonflagon-fvtt/issues/new/choose",
-	"authors": [ { "name": "flamewave000", "discord": "flamewave000#0001", "url": "https://github.com/flamewave000" } ],
+	"authors": [ { "name": "flamewave000", "discord": "flamewave000#0001", "url": "https://github.com/flamewave000" },
+		{ "name": "NUBI", "discord": "nubrpg", "url": "https://github.com/FoundryModule" }
+	],
 	"media": [
 		{ "type": "cover", "url": "https://raw.githubusercontent.com/flamewave000/dragonflagon-fvtt/master/.assets/df-chat-enhance/cover.png" },
 		{ "type": "icon", "url": "https://raw.githubusercontent.com/flamewave000/dragonflagon-fvtt/master/.assets/logo.png" },
