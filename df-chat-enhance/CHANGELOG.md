@@ -5,6 +5,7 @@
 - **UPDATE:** Make compatible with MidiQoL v11.3.21
 - **UPDATE:** Make compatible with Polyglot v2.4.3
 - **UPDATE:** Now it'll hide whisphers when displaying chat archives
+- **UPDATE:** Fixed Korean localization
 
 ## Release 4.1.0 (2022-10-23)
 - **UPDATE:** Migrated to V10.
